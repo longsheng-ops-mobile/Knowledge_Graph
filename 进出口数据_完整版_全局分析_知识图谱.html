@@ -78,6 +78,22 @@
             display: block;
         }
         
+        /* 知识库Tab使用左右布局 */
+        #knowledge.active {
+            display: flex;
+            gap: 20px;
+        }
+        
+        #knowledge.active .search-container {
+            width: 40%;
+            min-width: 300px;
+        }
+        
+        #knowledge.active .details-panel {
+            width: 60%;
+            margin-top: 0;
+        }
+        
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
