@@ -282,6 +282,25 @@
             line-height: 1.6;
         }
         
+        .btn-details {
+            margin-top: 10px;
+            padding: 8px 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 6px;
+            color: white;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+        
+        .btn-details:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
         /* 知识图谱样式 */
         #network {
             width: 100%;
@@ -1185,7 +1204,16 @@ const globalStats = {"2019":{"total_import":1430088959.6941993,"total_export":17
                         <span class="data-label">进出口总额:</span>
                         <span class="data-value">${(data?.total_rmb || 0).toLocaleString('zh-CN', {maximumFractionDigits: 2})} 万元</span>
                     </div>
+                    <div class="data-item">
+                        <span class="data-label">出口:</span>
+                        <span class="data-value">${(data?.export_rmb || 0).toLocaleString('zh-CN', {maximumFractionDigits: 2})} 万元</span>
+                    </div>
+                    <div class="data-item">
+                        <span class="data-label">进口:</span>
+                        <span class="data-value">${(data?.import_rmb || 0).toLocaleString('zh-CN', {maximumFractionDigits: 2})} 万元</span>
+                    </div>
                 </div>
+                <button class="btn-details" onclick="event.stopPropagation(); showCountryDetails('${country}'); updateAnalysis('${country}');">📊 查看数据明细</button>
             `;
             
             return card;
