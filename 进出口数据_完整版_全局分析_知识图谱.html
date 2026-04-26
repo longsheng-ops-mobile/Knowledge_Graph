@@ -283,6 +283,30 @@
             border: 1px solid #2a2a4a;
         }
         
+        .graph-legend {
+            display: flex;
+            gap: 20px;
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(26, 26, 58, 0.5);
+            border-radius: 8px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #e0e0ff;
+            font-size: 14px;
+        }
+        
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+        
         .btn {
             padding: 10px 20px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -500,11 +524,30 @@
     <!-- 知识图谱内容 -->
     <div id="graph" class="content">
         <div class="graph-controls">
-            <button class="btn" onclick="showTopCountries(20)">显示贸易额TOP20</button>
-            <button class="btn" onclick="showRegionCountries('亚洲')">亚洲主要国家</button>
-            <button class="btn" onclick="showRegion('欧洲')">欧洲主要国家</button>
-            <button class="btn" onclick="showRegionCountries('北美洲')">北美洲主要国家</button>
+            <select id="graphYearFilter" class="filter-select" onchange="updateGraph('中国')">
+                <option value="2023">2023年</option>
+                <option value="2022">2022年</option>
+                <option value="2021">2021年</option>
+                <option value="2020">2020年</option>
+                <option value="2019">2019年</option>
+            </select>
+            <button class="btn" onclick="updateGraph('中国')">显示TOP30国家</button>
             <button class="btn" onclick="resetGraph()">重置视图</button>
+        </div>
+        
+        <div class="graph-legend">
+            <div class="legend-item">
+                <span class="legend-color" style="background-color: #ef4444;"></span>
+                <span>进口为主（中国从该国共进口＞出口）</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-color" style="background-color: #10b981;"></span>
+                <span>出口为主（中国向该国出口＞进口）</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-color" style="background-color: #667eea;"></span>
+                <span>贸易均衡（进出口基本平衡）</span>
+            </div>
         </div>
         
         <div id="network"></div>
@@ -1170,6 +1213,8 @@ const globalStats = {"2019":{"total_import":1430088959.6941993,"total_export":17
                 return;
             }
             
+            const selectedYear = document.getElementById('graphYearFilter').value;
+            
             nodes.clear();
             edges.clear();
             
@@ -1188,16 +1233,16 @@ const globalStats = {"2019":{"total_import":1430088959.6941993,"total_export":17
             });
             
             const topCountries = Object.keys(tradeData)
-                .filter(country => country !== centerCountry)
+                .filter(country => country !== centerCountry && tradeData[country][selectedYear])
                 .sort((a, b) => {
-                    const aData = tradeData[a]['2023'] || tradeData[a]['2019'];
-                    const bData = tradeData[b]['2023'] || tradeData[b]['2019'];
+                    const aData = tradeData[a][selectedYear];
+                    const bData = tradeData[b][selectedYear];
                     return (bData?.total_rmb || 0) - (aData?.total_rmb || 0);
                 })
-                .slice(0, 10);
+                .slice(0, 30);
             
             topCountries.forEach(country => {
-                const countryData = tradeData[country]['2023'] || tradeData[country]['2019'];
+                const countryData = tradeData[country][selectedYear];
                 
                 nodes.add({
                     id: country,
@@ -1210,12 +1255,31 @@ const globalStats = {"2019":{"total_import":1430088959.6941993,"total_export":17
                 });
                 
                 const tradeValue = countryData?.total_rmb || 0;
+                const exportValue = countryData?.export_rmb || 0;
+                const importValue = countryData?.import_rmb || 0;
+                
+                // 判断贸易关系类型
+                let edgeColor;
+                if (importValue > exportValue * 1.1) {
+                    // 进口为主（中国从该国进口＞出口）
+                    edgeColor = '#ef4444';  // 红色
+                } else if (exportValue > importValue * 1.1) {
+                    // 出口为主（中国向该国出口＞进口）
+                    edgeColor = '#10b981';  // 绿色
+                } else {
+                    // 贸易均衡
+                    edgeColor = '#667eea';  // 蓝色
+                }
+                
                 edges.add({
                     from: centerCountry,
                     to: country,
                     value: tradeValue / 1000000,
-                    title: `${centerCountry} - ${country}
-贸易额: ${tradeValue.toLocaleString('zh-CN')} 万元人民币`
+                    color: {
+                        color: edgeColor,
+                        highlight: edgeColor
+                    },
+                    title: `${centerCountry} - ${country}\n${selectedYear}年\n贸易额: ${tradeValue.toLocaleString('zh-CN')} 万元人民币\n出口: ${exportValue.toLocaleString('zh-CN')} 万元\n进口: ${importValue.toLocaleString('zh-CN')} 万元`
                 });
             });
         }
