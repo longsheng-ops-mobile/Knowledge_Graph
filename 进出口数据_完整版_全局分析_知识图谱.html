@@ -89,7 +89,8 @@
             min-width: 300px;
         }
         
-        #knowledge.active .details-panel {
+        #knowledge.active .details-panel.active {
+            display: block;
             width: 60%;
             margin-top: 0;
         }
@@ -364,6 +365,51 @@
             flex-shrink: 0;
         }
         
+        .legend-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+        
+        .legend-header-title {
+            color: #667eea;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .legend-toggle {
+            background: rgba(102, 126, 234, 0.2);
+            border: 1px solid #667eea;
+            color: #667eea;
+            font-size: 12px;
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+        
+        .legend-toggle:hover {
+            background: rgba(102, 126, 234, 0.4);
+        }
+        
+        .legend-content {
+            transition: all 0.3s ease;
+        }
+        
+        .graph-legend.collapsed .legend-content {
+            display: none;
+        }
+        
+        .graph-legend.collapsed {
+            padding: 10px 15px;
+        }
+        
         .btn {
             padding: 10px 20px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -636,6 +682,13 @@
             <!-- 国家卡片将在这里动态生成 -->
         </div>
         
+        <div id="detailsPanelKnowledge" class="details-panel">
+            <div class="details-title" id="detailsTitleKnowledge">国家/地区详情</div>
+            <div class="details-content" id="detailsContentKnowledge">
+                <!-- 详情内容将在这里动态生成 -->
+            </div>
+        </div>
+        
         <div id="noData" class="no-data" style="display:none;">
             未找到匹配的国家或地区
         </div>
@@ -655,7 +708,12 @@
             <button class="btn" onclick="resetGraph()">重置视图</button>
         </div>
         
-        <div class="graph-legend">
+        <div class="graph-legend" id="graphLegend">
+            <div class="legend-header">
+                <span class="legend-header-title">图例说明</span>
+                <button class="legend-toggle" onclick="toggleLegend()">▼</button>
+            </div>
+            <div class="legend-content" id="legendContent">
             <div class="legend-section">
                 <div class="legend-title">📍 节点说明</div>
                 <div class="legend-item">
@@ -702,6 +760,7 @@
                     <span>贸易均衡（进出口基本平衡）</span>
                 </div>
             </div>
+            </div>
         </div>
         
         <div id="network"></div>
@@ -726,6 +785,14 @@ const globalStats = {"2019":{"total_import":1430088959.6941993,"total_export":17
         let nodes = null;
         let edges = null;
         let selectedCountry = '中国';
+        
+        // 切换图例显示/隐藏
+        function toggleLegend() {
+            const legend = document.getElementById('graphLegend');
+            const toggleBtn = legend.querySelector('.legend-toggle');
+            legend.classList.toggle('collapsed');
+            toggleBtn.textContent = legend.classList.contains('collapsed') ? '▶' : '▼';
+        }
         
         // 初始化应用
         function initializeApp() {
@@ -1236,12 +1303,28 @@ const globalStats = {"2019":{"total_import":1430088959.6941993,"total_export":17
                 }
             });
             
+            // 获取两个面板（知识库和知识图谱）
             const detailsPanel = document.getElementById('detailsPanel');
+            const detailsPanelKnowledge = document.getElementById('detailsPanelKnowledge');
             const detailsTitle = document.getElementById('detailsTitle');
+            const detailsTitleKnowledge = document.getElementById('detailsTitleKnowledge');
             const detailsContent = document.getElementById('detailsContent');
+            const detailsContentKnowledge = document.getElementById('detailsContentKnowledge');
             
-            detailsPanel.classList.add('active');
-            detailsTitle.textContent = `${country} - 数据明细`;
+            // 判断当前激活的Tab
+            const isKnowledgeActive = document.getElementById('knowledge').classList.contains('active');
+            
+            if (isKnowledgeActive) {
+                // 在知识库Tab，显示知识库面板
+                detailsPanelKnowledge.classList.add('active');
+                detailsPanel.classList.remove('active');
+                detailsTitleKnowledge.textContent = `${country} - 数据明细`;
+            } else {
+                // 在知识图谱Tab，显示知识图谱面板
+                detailsPanel.classList.add('active');
+                detailsPanelKnowledge.classList.remove('active');
+                detailsTitle.textContent = `${country} - 数据明细`;
+            }
             
             // 生成5年数据表格
             let tableHTML = `
@@ -1321,7 +1404,9 @@ const globalStats = {"2019":{"total_import":1430088959.6941993,"total_export":17
                 `;
             }
             
+            // 同时更新两个面板的内容
             detailsContent.innerHTML = tableHTML;
+            detailsContentKnowledge.innerHTML = tableHTML;
             
             if (document.getElementById('graph').classList.contains('active') && network) {
                 updateGraph(country);
