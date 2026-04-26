@@ -419,6 +419,69 @@
             overflow-y: auto;
             margin-top: 20px;
         }
+        
+        .details-table-container {
+            overflow-x: auto;
+            margin-bottom: 20px;
+        }
+        
+        .details-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        
+        .details-table th {
+            background: rgba(102, 126, 234, 0.2);
+            color: #667eea;
+            padding: 10px;
+            text-align: left;
+            border-bottom: 2px solid #667eea;
+            white-space: nowrap;
+        }
+        
+        .details-table td {
+            padding: 8px 10px;
+            border-bottom: 1px solid #1a1a3e;
+            color: #e0e0ff;
+        }
+        
+        .details-table tr:hover {
+            background: rgba(102, 126, 234, 0.1);
+        }
+        
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .summary-card {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #2a2a4a;
+            text-align: center;
+        }
+        
+        .summary-label {
+            color: #a0a0cc;
+            font-size: 12px;
+            margin-bottom: 8px;
+        }
+        
+        .summary-value {
+            color: #e0e0ff;
+            font-size: 20px;
+            font-weight: 600;
+        }
+        
+        .summary-sub {
+            color: #a0a0cc;
+            font-size: 11px;
+            margin-top: 5px;
+        }
     </style>
 </head>
 <body>
@@ -1134,36 +1197,87 @@ const globalStats = {"2019":{"total_import":1430088959.6941993,"total_export":17
             const detailsContent = document.getElementById('detailsContent');
             
             detailsPanel.classList.add('active');
-            detailsTitle.textContent = `${country} - 2019-2023年贸易数据`;
+            detailsTitle.textContent = `${country} - 数据明细`;
             
-            let detailsHTML = '';
+            // 生成5年数据表格
+            let tableHTML = `
+                <div class="details-table-container">
+                    <table class="details-table">
+                        <thead>
+                            <tr>
+                                <th>年份</th>
+                                <th>进出口总额(万元)</th>
+                                <th>出口额(万元)</th>
+                                <th>进口额(万元)</th>
+                                <th>贸易差额(万元)</th>
+                                <th>进出口(万美元)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
             
-            for (let year = 2019; year <= 2023; year++) {
-                const yearStr = year.toString();
-                const yearData = countryData[yearStr];
-                
+            let years = ['2019', '2020', '2021', '2022', '2023'];
+            let totalGrowth = null;
+            
+            years.forEach((year, index) => {
+                const yearData = countryData[year];
                 if (yearData) {
-                    detailsHTML += `
-                        <div class="details-card">
-                            <h4>${year}年</h4>
-                            <div class="stat-item">
-                                <span class="stat-label">进出口总额 (万元人民币):</span>
-                                <span class="stat-value">${yearData.total_rmb.toLocaleString('zh-CN', {maximumFractionDigits: 2})}</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">出口总额 (万元人民币):</span>
-                                <span class="stat-value">${yearData.export_rmb.toLocaleString('zh-CN', {maximumFractionDigits: 2})}</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">进口总额 (万元人民币):</span>
-                                <span class="stat-value">${yearData.import_rmb.toLocaleString('zh-CN', {maximumFractionDigits: 2})}</span>
-                            </div>
-                        </div>
+                    const tradeBalance = yearData.export_rmb - yearData.import_rmb;
+                    
+                    // 计算同比增长
+                    let yoy = '';
+                    if (index > 0) {
+                        const prevYearData = countryData[years[index - 1]];
+                        if (prevYearData) {
+                            const growth = ((yearData.total_rmb - prevYearData.total_rmb) / prevYearData.total_rmb * 100).toFixed(2);
+                            yoy = `<span class="${growth >= 0 ? 'positive' : 'negative'}">${growth}%</span>`;
+                        }
+                    }
+                    
+                    tableHTML += `
+                        <tr>
+                            <td><strong>${year}年</strong>${yoy}</td>
+                            <td>${(yearData.total_rmb || 0).toLocaleString('zh-CN', {maximumFractionDigits: 2})}</td>
+                            <td>${(yearData.export_rmb || 0).toLocaleString('zh-CN', {maximumFractionDigits: 2})}</td>
+                            <td>${(yearData.import_rmb || 0).toLocaleString('zh-CN', {maximumFractionDigits: 2})}</td>
+                            <td class="${tradeBalance >= 0 ? 'positive' : 'negative'}">${tradeBalance.toLocaleString('zh-CN', {maximumFractionDigits: 2})}</td>
+                            <td>${(yearData.total_usd || 0).toLocaleString('zh-CN', {maximumFractionDigits: 2})}</td>
+                        </tr>
                     `;
                 }
+            });
+            
+            tableHTML += `
+                        </tbody>
+                    </table>
+                </div>
+            `;
+            
+            // 生成汇总信息
+            const data2019 = countryData['2019'];
+            const data2023 = countryData['2023'];
+            if (data2019 && data2023) {
+                const totalGrowth = ((data2023.total_rmb - data2019.total_rmb) / data2019.total_rmb * 100).toFixed(2);
+                tableHTML += `
+                    <div class="summary-cards">
+                        <div class="summary-card">
+                            <div class="summary-label">5年增长率</div>
+                            <div class="summary-value ${totalGrowth >= 0 ? 'positive' : 'negative'}">${totalGrowth}%</div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="summary-label">2023年进出口</div>
+                            <div class="summary-value">${(data2023.total_rmb || 0).toLocaleString('zh-CN', {maximumFractionDigits: 2})}</div>
+                            <div class="summary-sub">万元人民币</div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="summary-label">主要贸易类型</div>
+                            <div class="summary-value">${data2023.export_rmb > data2023.import_rmb ? '出口为主' : '进口为主'}</div>
+                        </div>
+                    </div>
+                `;
             }
             
-            detailsContent.innerHTML = detailsHTML;
+            detailsContent.innerHTML = tableHTML;
             
             if (document.getElementById('graph').classList.contains('active') && network) {
                 updateGraph(country);
