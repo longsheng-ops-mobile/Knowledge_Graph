@@ -1051,6 +1051,15 @@ const globalStats = {"2019":{"total_import":1430088959.6941993,"total_export":17
             
             if (tabName === 'graph' && network) {
                 network.redraw();
+                // 延迟执行fit，确保容器已完成布局变化
+                setTimeout(() => {
+                    network.fit({
+                        animation: {
+                            duration: 1000,
+                            easingFunction: 'easeInOutQuad'
+                        }
+                    });
+                }, 300);
             }
         }
         
@@ -1620,6 +1629,15 @@ const globalStats = {"2019":{"total_import":1430088959.6941993,"total_export":17
             detailsContent.innerHTML = tableHTML;
             detailsContentKnowledge.innerHTML = tableHTML;
             
+            // 自动滚动到面板位置
+            setTimeout(() => {
+                if (isKnowledgeActive && detailsPanelKnowledge.classList.contains('active')) {
+                    detailsPanelKnowledge.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                } else if (detailsPanel.classList.contains('active')) {
+                    detailsPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }, 100);
+            
             if (document.getElementById('graph').classList.contains('active') && network) {
                 updateGraph(country);
             }
@@ -1797,6 +1815,18 @@ const globalStats = {"2019":{"total_import":1430088959.6941993,"total_export":17
                     title: `${centerCountry} - ${country}\n${selectedYear}年\n贸易额: ${tradeValue.toLocaleString('zh-CN')} 万元人民币\n出口: ${exportValue.toLocaleString('zh-CN')} 万元\n进口: ${importValue.toLocaleString('zh-CN')} 万元`
                 });
             });
+            
+            // 自动居中显示图谱
+            setTimeout(() => {
+                if (network) {
+                    network.fit({
+                        animation: {
+                            duration: 1000,
+                            easingFunction: 'easeInOutQuad'
+                        }
+                    });
+                }
+            }, 300);
         }
         
         // 根据大洲获取颜色
