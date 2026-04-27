@@ -1052,14 +1052,14 @@ const globalStats = {"2019":{"total_import":1430088959.6941993,"total_export":17
             if (tabName === 'graph' && network) {
                 network.redraw();
                 // 延迟执行fit，确保容器已完成布局变化
-                setTimeout(() => {
+                setTimeout(function() {
                     network.fit({
                         animation: {
                             duration: 1000,
                             easingFunction: 'easeInOutQuad'
                         }
                     });
-                }, 300);
+                }, 500);
             }
         }
         
@@ -1816,8 +1816,18 @@ const globalStats = {"2019":{"total_import":1430088959.6941993,"total_export":17
                 });
             });
             
-            // 自动居中显示图谱
-            setTimeout(() => {
+            // 等待物理引擎稳定后自动居中显示图谱
+            network.once('stabilized', function() {
+                network.fit({
+                    animation: {
+                        duration: 1000,
+                        easingFunction: 'easeInOutQuad'
+                    }
+                });
+            });
+            
+            // 备用方案：如果stabilized事件未触发，延迟执行fit
+            setTimeout(function() {
                 if (network) {
                     network.fit({
                         animation: {
@@ -1826,7 +1836,7 @@ const globalStats = {"2019":{"total_import":1430088959.6941993,"total_export":17
                         }
                     });
                 }
-            }, 300);
+            }, 1000);
         }
         
         // 根据大洲获取颜色
