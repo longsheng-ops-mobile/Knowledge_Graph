@@ -563,6 +563,218 @@
             font-size: 11px;
             margin-top: 5px;
         }
+        
+        /* ===== 移动端自适应 ===== */
+        /* 平板适配 */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 20px;
+            }
+            
+            .header p {
+                font-size: 12px;
+            }
+            
+            .tab-container {
+                overflow-x: auto;
+                white-space: nowrap;
+                flex-wrap: nowrap;
+            }
+            
+            .tab {
+                font-size: 13px;
+                padding: 10px 15px;
+                display: inline-block;
+            }
+            
+            #knowledge.active {
+                flex-direction: column;
+            }
+            
+            #knowledge.active .search-container {
+                width: 100%;
+                min-width: auto;
+            }
+            
+            #knowledge.active .details-panel.active {
+                width: 100%;
+                margin-top: 20px;
+            }
+            
+            .stats-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .chart-wrapper {
+                height: 300px;
+            }
+            
+            .table-container {
+                overflow-x: auto;
+            }
+            
+            .data-table {
+                min-width: 600px;
+            }
+            
+            .details-table {
+                min-width: 600px;
+            }
+            
+            .summary-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .graph-controls {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .graph-controls .filter-select,
+            .graph-controls .btn {
+                width: 100%;
+            }
+            
+            .graph-legend {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+        
+        /* 手机适配 */
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            
+            .header {
+                padding: 15px;
+                margin-bottom: 15px;
+            }
+            
+            .header h1 {
+                font-size: 18px;
+            }
+            
+            .header p {
+                font-size: 11px;
+                display: none;
+            }
+            
+            .tab {
+                font-size: 12px;
+                padding: 8px 12px;
+            }
+            
+            .content {
+                padding: 15px;
+            }
+            
+            .stats-container {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            
+            .stat-card {
+                padding: 15px;
+            }
+            
+            .stat-value {
+                font-size: 20px;
+            }
+            
+            .chart-container {
+                padding: 15px;
+            }
+            
+            .chart-title {
+                font-size: 16px;
+            }
+            
+            .chart-wrapper {
+                height: 250px;
+            }
+            
+            .filter-select {
+                font-size: 12px;
+                padding: 6px 10px;
+            }
+            
+            .btn {
+                font-size: 12px;
+                padding: 8px 15px;
+            }
+            
+            .search-box {
+                font-size: 14px;
+                padding: 10px 15px;
+            }
+            
+            .country-card {
+                padding: 12px;
+            }
+            
+            .country-name {
+                font-size: 14px;
+            }
+            
+            .country-region {
+                font-size: 11px;
+            }
+            
+            .data-item {
+                font-size: 11px;
+            }
+            
+            .btn-details {
+                font-size: 11px;
+                padding: 6px 12px;
+            }
+            
+            .details-panel {
+                padding: 15px;
+            }
+            
+            .details-title {
+                font-size: 16px;
+            }
+            
+            .details-table th,
+            .details-table td {
+                font-size: 11px;
+                padding: 6px;
+            }
+            
+            .summary-card {
+                padding: 12px;
+            }
+            
+            .summary-label {
+                font-size: 11px;
+            }
+            
+            .summary-value {
+                font-size: 18px;
+            }
+            
+            .graph-legend {
+                padding: 10px;
+            }
+            
+            .legend-item {
+                font-size: 11px;
+            }
+            
+            .legend-color {
+                width: 16px;
+                height: 16px;
+            }
+            
+            .legend-line {
+                width: 24px;
+                height: 3px;
+            }
+        }
     </style>
 </head>
 <body>
